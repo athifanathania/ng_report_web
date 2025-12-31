@@ -51,6 +51,9 @@ class PartResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([10, 25, 50])
+            ->defaultPaginationPageOption(10)
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('part_no')
                     ->label('Part No')

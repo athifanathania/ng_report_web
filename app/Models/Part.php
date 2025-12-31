@@ -17,4 +17,9 @@ class Part extends Model
     {
         return $this->hasMany(NgReport::class);
     }
+
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

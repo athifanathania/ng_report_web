@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Get;
+use Illuminate\Support\Facades\DB;
 
 class NgReportResource extends Resource
 {
@@ -29,26 +31,36 @@ class NgReportResource extends Resource
                     ->schema([
                         Forms\Components\Select::make('supplier_id')
                             ->label('Supplier')
-                            ->relationship(
-                                name: 'supplier',
-                                titleAttribute: 'name',
-                            )
+                            ->relationship('supplier', 'name')
                             ->searchable()
                             ->preload()
-                            ->required(),
+                            ->required()
+                            ->live() // Menggunakan live() lebih disarankan di Filament v3
+                            ->afterStateUpdated(fn ($set) => $set('part_id', null)),
 
                         Forms\Components\Select::make('part_id')
                             ->label('Part')
-                            ->relationship(
-                                name: 'part',
-                                titleAttribute: 'part_no',
-                            )
-                            ->getOptionLabelFromRecordUsing(function ($record) {
-                                return $record->part_no . ' — ' . $record->part_name;
+                            ->placeholder(fn (Get $get): string => empty($get('supplier_id')) ? 'Pilih supplier terlebih dahulu' : 'Pilih Part')
+                            ->options(function (Get $get) {
+                                $supplierId = $get('supplier_id');
+
+                                if (! $supplierId) {
+                                    return [];
+                                }
+
+                                // Ambil data part berdasarkan supplier_id
+                                // Pastikan kolom di database adalah 'default_supplier_id' sesuai PartResource Anda
+                                return \App\Models\Part::query()
+                                    ->where('default_supplier_id', $supplierId) 
+                                    ->get()
+                                    ->mapWithKeys(function ($part) {
+                                        return [$part->id => "{$part->part_no} — {$part->part_name}"];
+                                    });
                             })
                             ->searchable()
-                            ->preload()
-                            ->required(),
+                            ->required()
+                            // Menambahkan key agar dropdown refresh saat supplier_id berubah
+                            ->key('part_id_select'),
                     ])
                     ->columns(2),
 
@@ -75,12 +87,13 @@ class NgReportResource extends Resource
                 Forms\Components\Section::make('Foto & Tanggal')
                     ->schema([
                         Forms\Components\FileUpload::make('photos')
-                            ->label('Foto NG')
+                            ->label('Photos')
                             ->multiple()
                             ->image()
+                            ->disk('public')
                             ->directory('ng-reports')
-                            ->helperText('Bisa upload beberapa foto. Dari tablet bisa langsung ambil dari kamera.')
-                            ->preserveFilenames(false),
+                            ->visibility('public')
+                            ->preserveFilenames(),
 
                         Forms\Components\DatePicker::make('input_date')
                             ->label('Tanggal Input')
@@ -113,6 +126,9 @@ class NgReportResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->paginated([10, 25, 50])
+            ->defaultPaginationPageOption(10)
+            ->striped()
             ->columns([
                 Tables\Columns\TextColumn::make('supplier.code')
                     ->label('Kode Supp.')
@@ -149,16 +165,19 @@ class NgReportResource extends Resource
                 
                 Tables\Columns\TextColumn::make('ng_detail')
                     ->label('Detail NG')
-                    ->limit(40)
-                    ->toggleable(),
+                    ->wrap() 
+                    ->extraAttributes(['style' => 'min-width: 250px;']),
 
                 Tables\Columns\TextColumn::make('input_date')
                     ->label('Tgl Input')
                     ->date(),
 
-                Tables\Columns\TextColumn::make('photos')
-                    ->label('Jml Foto')
-                    ->state(fn ($record) => is_array($record->photos) ? count($record->photos) : 0),
+                Tables\Columns\ImageColumn::make('photos') 
+                    ->label('Foto')
+                    ->disk('public') 
+                    ->circular() 
+                    ->stacked()  
+                    ->limit(1),
 
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -171,8 +190,7 @@ class NgReportResource extends Resource
 
                 Tables\Columns\TextColumn::make('email_sent_at')
                     ->label('Email Sent At')
-                    ->dateTime()
-                    ->toggleable(),
+                    ->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -184,6 +202,27 @@ class NgReportResource extends Resource
                     ]),
             ])
             ->actions([
+                Tables\Actions\Action::make('sendEmail')
+                    ->label('Kirim Email')
+                    ->icon('heroicon-m-paper-airplane')
+                    ->color('success')
+                    ->requiresConfirmation() // Biar tidak sengaja tertekan
+                    ->action(function (NgReport $record) {
+                        // Logika pengiriman email
+                        \Illuminate\Support\Facades\Mail::to($record->supplier->email) // Pastikan model Supplier punya kolom 'email'
+                            ->send(new \App\Mail\NgReportMail($record));
+
+                        // Update status dan tanggal kirim
+                        $record->update([
+                            'status' => 'SENT',
+                            'email_sent_at' => now(),
+                        ]);
+
+                        \Filament\Notifications\Notification::make()
+                            ->title('Email berhasil dikirim ke ' . $record->supplier->name)
+                            ->success()
+                            ->send();
+                    }),
                 Tables\Actions\ViewAction::make()->label(''),
                 Tables\Actions\EditAction::make()->label(''),
                 Tables\Actions\DeleteAction::make()->label(''),
