@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 17, 2025 at 10:49 AM
+-- Generation Time: Jan 05, 2026 at 07:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -60,7 +60,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (4, '2019_12_14_000001_create_personal_access_tokens_table', 1),
 (5, '2025_12_04_015802_create_suppliers_table', 1),
 (6, '2025_12_04_015803_create_parts_table', 1),
-(7, '2025_12_04_015804_create_ng_reports_table', 1);
+(7, '2025_12_04_015804_create_ng_reports_table', 1),
+(8, '2025_12_30_062249_create_ng_reports_table', 2),
+(9, '2025_12_30_064737_add_supplier_id_to_parts', 3);
 
 -- --------------------------------------------------------
 
@@ -87,8 +89,7 @@ CREATE TABLE `ng_reports` (
 --
 
 INSERT INTO `ng_reports` (`id`, `supplier_id`, `part_id`, `ng_category`, `ng_detail`, `photos`, `input_date`, `status`, `email_sent_at`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'DIMENSION', 'cb', '[\"ng-reports\\/01KBM664ESE3AQA5S8JQREMJSF.png\",\"ng-reports\\/01KBM664EVVG9RE7XKTAY92A4K.png\"]', '2025-12-04', 'DRAFT', NULL, '2025-12-04 01:00:46', '2025-12-04 01:03:18'),
-(2, 1, 1, 'APPEARANCE', 'cek', '[\"ng-reports\\/01KBM62X028Y492ME7NT2TGXE2.jpg\",\"ng-reports\\/01KBM62X09X5RFDZR8Q63HMRZD.jpg\"]', '2025-12-04', 'DRAFT', NULL, '2025-12-04 01:01:32', '2025-12-04 01:01:32');
+(1, 2, 2, 'DIMENSION', 'Terdapat goresan sepanjang 5cm pada sisi kanan', '[\"ng-reports\\/RELASI BOM.png\",\"ng-reports\\/PT.-Indomatsumoto-Press-Dies-Industries-v1 (1).png\",\"ng-reports\\/01KE6DMGTJMDA1QQDT3EPM9D0F.png\"]', '2025-12-30', 'SENT', '2025-12-30 02:09:55', '2025-12-30 00:38:34', '2026-01-04 23:31:12');
 
 -- --------------------------------------------------------
 
@@ -102,15 +103,17 @@ CREATE TABLE `parts` (
   `part_name` varchar(255) NOT NULL,
   `default_supplier_id` bigint(20) UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `supplier_id` bigint(20) UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data for table `parts`
 --
 
-INSERT INTO `parts` (`id`, `part_no`, `part_name`, `default_supplier_id`, `created_at`, `updated_at`) VALUES
-(1, '121', 'REFLECTOR PRE', 1, '2025-12-04 00:57:54', '2025-12-04 00:57:54');
+INSERT INTO `parts` (`id`, `part_no`, `part_name`, `default_supplier_id`, `created_at`, `updated_at`, `supplier_id`) VALUES
+(1, '121', 'REFLECTOR PRE', 1, '2025-12-04 00:57:54', '2025-12-04 00:57:54', NULL),
+(2, 'D01.103027', 'Bumper Front', 2, '2025-12-29 23:25:54', '2025-12-30 01:36:23', NULL);
 
 -- --------------------------------------------------------
 
@@ -165,7 +168,8 @@ CREATE TABLE `suppliers` (
 --
 
 INSERT INTO `suppliers` (`id`, `code`, `name`, `email`, `phone`, `address`, `created_at`, `updated_at`) VALUES
-(1, 'SUZUKI', 'suzuki', 'a@gmail.com', NULL, NULL, '2025-12-04 00:47:35', '2025-12-04 00:47:35');
+(1, 'SUZUKI', 'suzuki', 'a@gmail.com', NULL, NULL, '2025-12-04 00:47:35', '2025-12-04 00:47:35'),
+(2, 'Yim', 'Yamaha', 'Dwidianto@indomatsumoto.com', NULL, NULL, '2025-12-29 23:25:13', '2025-12-30 02:09:38');
 
 -- --------------------------------------------------------
 
@@ -222,7 +226,8 @@ ALTER TABLE `ng_reports`
 ALTER TABLE `parts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `parts_part_no_unique` (`part_no`),
-  ADD KEY `parts_default_supplier_id_foreign` (`default_supplier_id`);
+  ADD KEY `parts_default_supplier_id_foreign` (`default_supplier_id`),
+  ADD KEY `parts_supplier_id_foreign` (`supplier_id`);
 
 --
 -- Indexes for table `password_reset_tokens`
@@ -266,19 +271,19 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `ng_reports`
 --
 ALTER TABLE `ng_reports`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `parts`
 --
 ALTER TABLE `parts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
@@ -290,7 +295,7 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT for table `suppliers`
 --
 ALTER TABLE `suppliers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -313,7 +318,8 @@ ALTER TABLE `ng_reports`
 -- Constraints for table `parts`
 --
 ALTER TABLE `parts`
-  ADD CONSTRAINT `parts_default_supplier_id_foreign` FOREIGN KEY (`default_supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `parts_default_supplier_id_foreign` FOREIGN KEY (`default_supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `parts_supplier_id_foreign` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
