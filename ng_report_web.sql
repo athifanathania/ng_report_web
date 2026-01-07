@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.2
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1
--- Generation Time: Jan 05, 2026 at 07:42 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Host: localhost:3306
+-- Generation Time: Jan 07, 2026 at 02:53 AM
+-- Server version: 8.0.29
+-- PHP Version: 8.3.16
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `failed_jobs` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `uuid` varchar(255) NOT NULL,
-  `connection` text NOT NULL,
-  `queue` text NOT NULL,
-  `payload` longtext NOT NULL,
-  `exception` longtext NOT NULL,
-  `failed_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` bigint UNSIGNED NOT NULL,
+  `uuid` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `connection` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `queue` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `payload` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `exception` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `failed_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -44,9 +44,9 @@ CREATE TABLE `failed_jobs` (
 --
 
 CREATE TABLE `migrations` (
-  `id` int(10) UNSIGNED NOT NULL,
-  `migration` varchar(255) NOT NULL,
-  `batch` int(11) NOT NULL
+  `id` int UNSIGNED NOT NULL,
+  `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `batch` int NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -62,7 +62,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (6, '2025_12_04_015803_create_parts_table', 1),
 (7, '2025_12_04_015804_create_ng_reports_table', 1),
 (8, '2025_12_30_062249_create_ng_reports_table', 2),
-(9, '2025_12_30_064737_add_supplier_id_to_parts', 3);
+(9, '2025_12_30_064737_add_supplier_id_to_parts', 3),
+(10, '2026_01_05_074201_add_role_to_users_table', 4);
 
 -- --------------------------------------------------------
 
@@ -71,25 +72,25 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 --
 
 CREATE TABLE `ng_reports` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `supplier_id` bigint(20) UNSIGNED NOT NULL,
-  `part_id` bigint(20) UNSIGNED NOT NULL,
-  `ng_category` varchar(255) NOT NULL,
-  `ng_detail` text NOT NULL,
-  `photos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`photos`)),
+  `id` bigint UNSIGNED NOT NULL,
+  `supplier_id` bigint UNSIGNED NOT NULL,
+  `part_id` bigint UNSIGNED NOT NULL,
+  `ng_category` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ng_detail` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `photos` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin,
   `input_date` date NOT NULL,
-  `status` varchar(255) NOT NULL DEFAULT 'DRAFT',
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'DRAFT',
   `email_sent_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ;
 
 --
 -- Dumping data for table `ng_reports`
 --
 
 INSERT INTO `ng_reports` (`id`, `supplier_id`, `part_id`, `ng_category`, `ng_detail`, `photos`, `input_date`, `status`, `email_sent_at`, `created_at`, `updated_at`) VALUES
-(1, 2, 2, 'DIMENSION', 'Terdapat goresan sepanjang 5cm pada sisi kanan', '[\"ng-reports\\/RELASI BOM.png\",\"ng-reports\\/PT.-Indomatsumoto-Press-Dies-Industries-v1 (1).png\",\"ng-reports\\/01KE6DMGTJMDA1QQDT3EPM9D0F.png\"]', '2025-12-30', 'SENT', '2025-12-30 02:09:55', '2025-12-30 00:38:34', '2026-01-04 23:31:12');
+(1, 2, 2, 'DIMENSION', 'Terdapat goresan sepanjang 5cm pada sisi kanan', '[\"ng-reports\\/RELASI BOM.png\",\"ng-reports\\/RELASI BOM.png\"]', '2025-12-30', 'SENT', '2025-12-30 02:09:55', '2025-12-30 00:38:34', '2026-01-05 00:31:22');
 
 -- --------------------------------------------------------
 
@@ -98,13 +99,13 @@ INSERT INTO `ng_reports` (`id`, `supplier_id`, `part_id`, `ng_category`, `ng_det
 --
 
 CREATE TABLE `parts` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `part_no` varchar(255) NOT NULL,
-  `part_name` varchar(255) NOT NULL,
-  `default_supplier_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `part_no` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `part_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `default_supplier_id` bigint UNSIGNED DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `supplier_id` bigint(20) UNSIGNED DEFAULT NULL
+  `supplier_id` bigint UNSIGNED DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
@@ -122,8 +123,8 @@ INSERT INTO `parts` (`id`, `part_no`, `part_name`, `default_supplier_id`, `creat
 --
 
 CREATE TABLE `password_reset_tokens` (
-  `email` varchar(255) NOT NULL,
-  `token` varchar(255) NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -134,12 +135,12 @@ CREATE TABLE `password_reset_tokens` (
 --
 
 CREATE TABLE `personal_access_tokens` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `tokenable_type` varchar(255) NOT NULL,
-  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `token` varchar(64) NOT NULL,
-  `abilities` text DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tokenable_id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `abilities` text COLLATE utf8mb4_unicode_ci,
   `last_used_at` timestamp NULL DEFAULT NULL,
   `expires_at` timestamp NULL DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -153,12 +154,12 @@ CREATE TABLE `personal_access_tokens` (
 --
 
 CREATE TABLE `suppliers` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `code` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `phone` varchar(255) DEFAULT NULL,
-  `address` varchar(255) DEFAULT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `phone` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `address` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -169,7 +170,7 @@ CREATE TABLE `suppliers` (
 
 INSERT INTO `suppliers` (`id`, `code`, `name`, `email`, `phone`, `address`, `created_at`, `updated_at`) VALUES
 (1, 'SUZUKI', 'suzuki', 'a@gmail.com', NULL, NULL, '2025-12-04 00:47:35', '2025-12-04 00:47:35'),
-(2, 'Yim', 'Yamaha', 'Dwidianto@indomatsumoto.com', NULL, NULL, '2025-12-29 23:25:13', '2025-12-30 02:09:38');
+(2, 'Yim', 'Yamaha', 'athifa2506@gmail.com', NULL, NULL, '2025-12-29 23:25:13', '2026-01-06 19:07:24');
 
 -- --------------------------------------------------------
 
@@ -178,12 +179,13 @@ INSERT INTO `suppliers` (`id`, `code`, `name`, `email`, `phone`, `address`, `cre
 --
 
 CREATE TABLE `users` (
-  `id` bigint(20) UNSIGNED NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `email` varchar(255) NOT NULL,
+  `id` bigint UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `role` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'OPERATOR',
   `email_verified_at` timestamp NULL DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `remember_token` varchar(100) DEFAULT NULL,
+  `password` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `remember_token` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -192,8 +194,9 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
-(1, 'admin', 'a@gmail.com', NULL, '$2y$12$NCCgdIexDLt68igrcx/eiugsFXhJqzqcub1sGf2aln/TPu80jgIFe', NULL, '2025-12-03 21:51:56', '2025-12-03 21:51:56');
+INSERT INTO `users` (`id`, `name`, `email`, `role`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`) VALUES
+(1, 'admin', 'a@gmail.com', 'ADMIN', NULL, '$2y$12$NCCgdIexDLt68igrcx/eiugsFXhJqzqcub1sGf2aln/TPu80jgIFe', NULL, '2025-12-03 21:51:56', '2026-01-05 00:44:42'),
+(2, 'nathania', 'n@gmail.com', 'OPERATOR', NULL, '$2y$12$x5eNgZ/kWlEMEovQ34b6sebPzPwxpkwIJbJLWtk9MreRSOaatkQue', NULL, '2026-01-05 00:47:17', '2026-01-05 00:47:17');
 
 --
 -- Indexes for dumped tables
@@ -265,43 +268,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `failed_jobs`
 --
 ALTER TABLE `failed_jobs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `ng_reports`
 --
 ALTER TABLE `ng_reports`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `parts`
 --
 ALTER TABLE `parts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `suppliers`
 --
 ALTER TABLE `suppliers`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- Constraints for dumped tables
